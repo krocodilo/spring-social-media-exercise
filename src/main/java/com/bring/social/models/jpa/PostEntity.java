@@ -1,11 +1,12 @@
-package com.bring.social.user;
+package com.bring.social.models.jpa;
 
+import com.bring.social.models.jpa.UserEntity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 
-@Entity     // Will create a DB table named "POST"
-public class Post {
+@Entity     // Will create a DB table named "Post"
+public class PostEntity {
 
     @Id
     @GeneratedValue
@@ -15,9 +16,9 @@ public class Post {
     private String description;
 
     @ManyToOne(fetch = FetchType.LAZY)  // because when we fetch the post, we don't want to
-        // fetch the details of the user (which would be the default)
+                            // fetch the details of the user (which would be the default)
     @JsonIgnore
-    private User user;
+    private UserEntity user;
 
     public Integer getId() {
         return id;
@@ -31,11 +32,11 @@ public class Post {
         return description;
     }
 
-    public User getUser() {
+    public UserEntity getUser() {
         return user;
     }
 
-    public void setUser(User user) {
+    public void setUser(UserEntity user) {
         this.user = user;
     }
 

@@ -2,25 +2,66 @@ package com.bring.social.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.NoOpPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
-@Configuration
+import javax.sql.DataSource;
+
+@Configuration  // during startup, Spring will excecute this class
 public class SpringSecurityConfig {
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-        // All requests must be authenticated
         http.authorizeHttpRequests(
-                auth -> auth.anyRequest().authenticated()
-        );
-        // If not, redirect to login webpage
-        http.httpBasic(Customizer.withDefaults());
+                req -> req
+                        .requestMatchers(HttpMethod.POST,"/users").permitAll()  //anyone can create new user
+                        .anyRequest().authenticated()
+//                        .anyRequest().denyAll()   // just as example
+        )
+        .httpBasic(Customizer.withDefaults())  // Http Basic Standards
 
-        // CSRF
-//        http.csrf().disable();
+        .csrf(AbstractHttpConfigurer::disable); // temp
         return http.build();
     }
+
+    @Bean
+    public PasswordEncoder bCryptPasswordEncoder() {
+        // Will become the default Password Encoder
+        return NoOpPasswordEncoder.getInstance();
+    }
+
+//    @Bean
+//    public UserDetailsService userDetailsService(DataSource datasource) {
+//        // DataSource contains the DB-related properties defined in application.properties
+//        return new JdbcUserDetailsManager(datasource);
+//    }
+
+//    @Bean
+//    public PasswordEncoder bCryptPasswordEncoder() {
+//        // Will become the default Password Encoder
+//        return new BCryptPasswordEncoder();
+//    }
+
+//    @Bean
+//    public InMemoryUserDetailsManager userDetailsService(){
+//        UserDetails admin = User.withDefaultPasswordEncoder()
+//                .username("user").password("dummypassword")
+//                .authorities("admin")
+//                .build();
+//
+//        return new InMemoryUserDetailsManager(admin);
+//    }
+
 }

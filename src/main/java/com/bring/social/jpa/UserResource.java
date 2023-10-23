@@ -1,10 +1,13 @@
 package com.bring.social.jpa;
 
 
-import com.bring.social.user.Post;
-import com.bring.social.user.User;
-import com.bring.social.user.UserNotFoundException;
+import com.bring.social.models.UserCredentials;
+import com.bring.social.models.requests.NewUserRequest;
+import com.bring.social.models.jpa.PostEntity;
+import com.bring.social.models.jpa.UserEntity;
+import com.bring.social.exceptions.UserNotFoundException;
 import jakarta.validation.Valid;
+import org.springframework.beans.BeanUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -14,66 +17,84 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
+@RequestMapping("users")    // -> /users
 public class UserResource {
 
     private final UserRepository userRepository;
     private final PostRepository postRepository;
+    private final CredentialsRepository credsRepository;
 
-
-    public UserResource(UserRepository userRepository, PostRepository postRepository) {
+    public UserResource(UserRepository userRepository, PostRepository postRepository,
+                        CredentialsRepository credsRepository) {
         this.userRepository = userRepository;
         this.postRepository = postRepository;
+        this.credsRepository = credsRepository;
     }
 
-    @GetMapping("/users")
-    public List<User> retrieveALlUsers() {
+    @GetMapping
+    public List<UserEntity> getALlUsers() {
         return userRepository.findAll();
     }
 
-    @GetMapping("/users/{id}")
-    public User retrieveOneUser(@PathVariable int id) {
-        Optional<User> usr = userRepository.findById(id);
+    @GetMapping("/{id}")
+    public UserEntity getOneUser(@PathVariable int id) {
+        Optional<UserEntity> usr = userRepository.findById(id);
         if(usr.isEmpty())
             throw new UserNotFoundException("User Not Found: " + id);
         return usr.get();
     }
 
-    @PostMapping("/users")
-    public ResponseEntity<User> createUser(@Valid @RequestBody User user){
+    @PostMapping
+    public ResponseEntity<UserEntity> createUser(@Valid @RequestBody NewUserRequest request){
 
+        UserEntity user = new UserEntity();
+        BeanUtils.copyProperties(request, user);
+        userRepository.save(user);
 
-        User usr = userRepository.save(user);
+        // TODO encrypt pass
+
+        credsRepository.save(new UserCredentials(user, request.getPassword(), request.getRole()));
 
         // Return the location to the new user profile
-        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
-                .path("/{id}").buildAndExpand(usr.getId()).toUri();
+        URI newUri = ServletUriComponentsBuilder.fromCurrentRequest()
+                .path("/{id}").buildAndExpand(user.getId()).toUri();
 
         // Return Status Code 201 (Created) with the created location
-        return ResponseEntity.created(location).build();
+        return ResponseEntity.created(newUri).build();
     }
 
-    @GetMapping("/users/{id}/posts")
-    public List<Post> retrievePostsForUser(@PathVariable int id) {
-        Optional<User> usr = userRepository.findById(id);
+    @GetMapping("/{id}/posts")
+    public List<PostEntity> retrievePostsForUser(@PathVariable int id) {
+        Optional<UserEntity> usr = userRepository.findById(id);
         if(usr.isEmpty())
             throw new UserNotFoundException("User Not Found: " + id);
 
         return  usr.get().getPosts();
     }
 
-    @PostMapping("/users/{id}/posts")
-    public ResponseEntity<Post> createPostForUser(@PathVariable int id, @Valid @RequestBody Post post) {
-        Optional<User> usr = userRepository.findById(id);
+    @PostMapping("/{id}/posts")
+    public ResponseEntity<PostEntity> createPostForUser(@PathVariable int id, @Valid @RequestBody PostEntity post) {
+        Optional<UserEntity> usr = userRepository.findById(id);
         if(usr.isEmpty())
             throw new UserNotFoundException("User Not Found: " + id);
 
         post.setUser(usr.get());
-        Post savedPost = postRepository.save(post);
+        PostEntity savedPost = postRepository.save(post);
 
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}").buildAndExpand(savedPost.getId()).toUri();
 
         // Return Status Code 201 (Created) with the created location
         return ResponseEntity.created(location).build();
+    }
+
+    @DeleteMapping("/deleteAll")
+    public boolean deleteAll(){
+        try{
+            userRepository.deleteAll();
+        }catch (Exception ignore){
+            return false;
+        }
+        return true;
     }
 }
