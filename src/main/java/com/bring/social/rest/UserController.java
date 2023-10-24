@@ -1,14 +1,19 @@
-package com.bring.social.jpa;
+package com.bring.social.rest;
 
 
+import com.bring.social.exceptions.UserNotFoundException;
+import com.bring.social.jpa.CredentialsRepository;
+import com.bring.social.jpa.PostRepository;
+import com.bring.social.jpa.UserRepository;
 import com.bring.social.models.UserCredentials;
-import com.bring.social.models.requests.NewUserRequest;
 import com.bring.social.models.jpa.PostEntity;
 import com.bring.social.models.jpa.UserEntity;
-import com.bring.social.exceptions.UserNotFoundException;
+import com.bring.social.models.requests.NewUserRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -18,18 +23,16 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("users")    // -> /users
-public class UserResource {
+public class UserController {
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private PostRepository postRepository;
+    @Autowired
+    private CredentialsRepository credsRepository;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
-    private final UserRepository userRepository;
-    private final PostRepository postRepository;
-    private final CredentialsRepository credsRepository;
-
-    public UserResource(UserRepository userRepository, PostRepository postRepository,
-                        CredentialsRepository credsRepository) {
-        this.userRepository = userRepository;
-        this.postRepository = postRepository;
-        this.credsRepository = credsRepository;
-    }
 
     @GetMapping
     public List<UserEntity> getALlUsers() {
@@ -51,9 +54,9 @@ public class UserResource {
         BeanUtils.copyProperties(request, user);
         userRepository.save(user);
 
-        // TODO encrypt pass
+        String passwordHash = passwordEncoder.encode( request.getPassword() );
 
-        credsRepository.save(new UserCredentials(user, request.getPassword(), request.getRole()));
+        credsRepository.save(new UserCredentials(user, passwordHash, request.getRole()));
 
         // Return the location to the new user profile
         URI newUri = ServletUriComponentsBuilder.fromCurrentRequest()

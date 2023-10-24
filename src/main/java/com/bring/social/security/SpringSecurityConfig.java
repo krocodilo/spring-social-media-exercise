@@ -6,17 +6,9 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
-import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
-
-import javax.sql.DataSource;
 
 @Configuration  // during startup, Spring will excecute this class
 public class SpringSecurityConfig {
@@ -39,7 +31,7 @@ public class SpringSecurityConfig {
     @Bean
     public PasswordEncoder bCryptPasswordEncoder() {
         // Will become the default Password Encoder
-        return NoOpPasswordEncoder.getInstance();
+        return new BCryptPasswordEncoder();
     }
 
 //    @Bean
@@ -48,11 +40,6 @@ public class SpringSecurityConfig {
 //        return new JdbcUserDetailsManager(datasource);
 //    }
 
-//    @Bean
-//    public PasswordEncoder bCryptPasswordEncoder() {
-//        // Will become the default Password Encoder
-//        return new BCryptPasswordEncoder();
-//    }
 
 //    @Bean
 //    public InMemoryUserDetailsManager userDetailsService(){
