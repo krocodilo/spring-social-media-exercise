@@ -31,7 +31,7 @@ public class SpringSecurityConfig {
     @Bean
     public PasswordEncoder bCryptPasswordEncoder() {
         // Will become the default Password Encoder
-        return new BCryptPasswordEncoder();
+        return new BCryptPasswordEncoder(); //Hashes the passwords. Does not encode
     }
 
 //    @Bean

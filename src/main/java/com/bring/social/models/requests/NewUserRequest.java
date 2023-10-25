@@ -2,12 +2,14 @@ package com.bring.social.models.requests;
 
 import com.bring.social.models.jpa.UserEntity;
 
+import java.util.Set;
+
 public class NewUserRequest extends UserEntity {
 
 //    @Size(min=16, message="Name must have at least 16 char")
     private String password;
 
-    private String role;
+    private Set<String> authorities;   // user roles
 
     public NewUserRequest() {
     }
@@ -20,11 +22,11 @@ public class NewUserRequest extends UserEntity {
         this.password = password;
     }
 
-    public String getRole() {
-        return role;
+    public Set<String> getAuthorities() {
+        return authorities;
     }
 
-    public void setRole(String role) {
-        this.role = role;
+    public void setAuthorities(Set<String> authorities) {
+        this.authorities = authorities;
     }
 }

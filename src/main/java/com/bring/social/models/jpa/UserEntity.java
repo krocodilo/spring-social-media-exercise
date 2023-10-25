@@ -1,6 +1,5 @@
 package com.bring.social.models.jpa;
 
-import com.bring.social.models.UserCredentials;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
@@ -29,14 +28,18 @@ public class UserEntity {
     private LocalDate birthDate;
 
     // Opposite of what is in Post entity:
-    @OneToMany(mappedBy = "user")   //The field in Post that owns this relationship
     @JsonIgnore // Because posts must not be part of the JSON request/response for the User bean
+    @OneToMany(mappedBy = "user")   //The field in Post that owns this relationship
     private List<PostEntity> posts;
 
+    @JsonIgnore
     @OneToOne(mappedBy = "user", fetch = FetchType.LAZY, optional = false,
         cascade = CascadeType.REMOVE)   //Only update creds table when user table is updated to remove (by removing it as well)
-    @JsonIgnore
     private UserCredentials credentials;
+
+//    @JsonIgnore
+//    @OneToMany(mappedBy = "user")
+//    private Set<Integer> authorities;
 
     public UserEntity(Integer id, String username, LocalDate birthDate) {
         this.id = id;
@@ -83,4 +86,5 @@ public class UserEntity {
     public void setCredentials(UserCredentials credentials) {
         this.credentials = credentials;
     }
+
 }
