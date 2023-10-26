@@ -36,14 +36,12 @@ public class CustomUserDetailsService implements UserDetailsService {
         if(creds.isEmpty())
             throw new NoSuchElementException("There's no credentials for user '"+username+"'.");
 
-
-
         return new User(
                 user.getUsername(),
                 creds.get().getEncodedPassword(),
-//                List.of(new SimpleGrantedAuthority( creds.get().getAuthority() ))
+//                List.of(new SimpleGrantedAuthority( "ROLE_ADMIN" ))
                 creds.get().getAuthorities().stream().map(
-                        authType -> new SimpleGrantedAuthority( authType.name() )
+                        SimpleGrantedAuthority::new
                 ).toList()
         );
     }

@@ -1,5 +1,6 @@
 package com.bring.social.security;
 
+import com.bring.social.models.AuthType;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -19,7 +20,10 @@ public class SpringSecurityConfig {
         http.authorizeHttpRequests(
                 req -> req
                         .requestMatchers(HttpMethod.POST,"/users").permitAll()  //anyone can create new user
-                        .anyRequest().authenticated()
+                        .requestMatchers("/users","/users/{id}/*").hasRole( AuthType.ROLE_ADMIN.removeRolePrefix() )
+                        .anyRequest().permitAll()//authenticated()
+
+//                        .requestMatchers(HttpMethod.GET,"/users").hasAuthority( AuthorityType.VIEW_USERS.name() )
 //                        .anyRequest().denyAll()   // just as example
         )
         .httpBasic(Customizer.withDefaults())  // Http Basic Standards
@@ -33,22 +37,5 @@ public class SpringSecurityConfig {
         // Will become the default Password Encoder
         return new BCryptPasswordEncoder(); //Hashes the passwords. Does not encode
     }
-
-//    @Bean
-//    public UserDetailsService userDetailsService(DataSource datasource) {
-//        // DataSource contains the DB-related properties defined in application.properties
-//        return new JdbcUserDetailsManager(datasource);
-//    }
-
-
-//    @Bean
-//    public InMemoryUserDetailsManager userDetailsService(){
-//        UserDetails admin = User.withDefaultPasswordEncoder()
-//                .username("user").password("dummypassword")
-//                .authorities("admin")
-//                .build();
-//
-//        return new InMemoryUserDetailsManager(admin);
-//    }
 
 }

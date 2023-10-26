@@ -5,7 +5,7 @@ import com.bring.social.exceptions.UserNotFoundException;
 import com.bring.social.jpa.CredentialsRepository;
 import com.bring.social.jpa.PostRepository;
 import com.bring.social.jpa.UserRepository;
-import com.bring.social.models.AuthorityType;
+import com.bring.social.models.AuthType;
 import com.bring.social.models.jpa.PostEntity;
 import com.bring.social.models.jpa.UserCredentials;
 import com.bring.social.models.jpa.UserEntity;
@@ -13,6 +13,7 @@ import com.bring.social.models.requests.NewUserRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -51,7 +52,10 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<UserEntity> createUser(@Valid @RequestBody NewUserRequest request){
+    public ResponseEntity<String> createUser(@Valid @RequestBody NewUserRequest request){
+
+        if(userRepository.findByUsername(request.getUsername()) != null)
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("User already exists");
 
         // Save user to DB
         UserEntity user = new UserEntity();
@@ -62,14 +66,15 @@ public class UserController {
         String passwordHash = passwordEncoder.encode( request.getPassword() );
 
         // Create a set of the requested authorities. In prod, users should not be able to become admins doing this
-        Set<AuthorityType> authorities = new HashSet<>(
+        Set<String> authorities = new HashSet<>(
                 request.getAuthorities().stream()
-                        .map(authName -> AuthorityType.valueOf( authName.toUpperCase() ))
+                        .filter( authName -> AuthType.getByName(authName).isPresent() )
                         .toList()
         );
 
         // Save user credentials to DB
         credsRepository.save(new UserCredentials(user, passwordHash, authorities));
+
 
         // Return the location to the new user profile
         URI newUri = ServletUriComponentsBuilder.fromCurrentRequest()
@@ -78,6 +83,34 @@ public class UserController {
         // Return Status Code 201 (Created) with the created location
         return ResponseEntity.created(newUri).build();
     }
+
+    @PatchMapping("/{username}/addAuthority")
+    public ResponseEntity<String> addAuthorityToUser(@PathVariable String username,@RequestBody String authority){
+
+        // Check if authority exists
+        Optional<AuthType> auth = AuthType.getByName(authority);
+        if( auth.isEmpty() )
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("That authority does not exist.");
+
+        // Find user
+        UserEntity user = userRepository.findByUsername(username);
+        if(user == null)
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("That user does not exist.");
+
+        // Get user authorities list
+        Optional<UserCredentials> tmp = credsRepository.findById( user.getId() );
+        if(tmp.isEmpty())
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Unable to find user credentials.");
+        UserCredentials creds = tmp.get();
+
+        // Save changes
+        creds.getAuthorities().add( auth.get().name() );
+        credsRepository.save( creds );
+
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+
 
     @GetMapping("/{id}/posts")
     public List<PostEntity> retrievePostsForUser(@PathVariable int id) {

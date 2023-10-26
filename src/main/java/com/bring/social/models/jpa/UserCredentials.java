@@ -1,6 +1,5 @@
 package com.bring.social.models.jpa;
 
-import com.bring.social.models.AuthorityType;
 import jakarta.persistence.*;
 
 import java.util.Set;
@@ -18,14 +17,15 @@ public class UserCredentials {
 
     private String encodedPassword;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)     // given we don't have a entity/repository for the authorities
+            // table (created auto by JPA), we can only access them via this object, so authorities must always be included
     @CollectionTable(name = "authorities", joinColumns = @JoinColumn(name = "user_id"))
-    private Set<AuthorityType> authorities;   // for spring security
+    private Set<String> authorities;   // for spring security
 
     public UserCredentials() {
     }
 
-    public UserCredentials(UserEntity user, String encodedPassword, Set<AuthorityType> authority) {
+    public UserCredentials(UserEntity user, String encodedPassword, Set<String> authority) {
         this.user = user;
         this.encodedPassword = encodedPassword;
         this.authorities = authority;
@@ -47,11 +47,11 @@ public class UserCredentials {
         this.encodedPassword = encodedPassword;
     }
 
-    public Set<AuthorityType> getAuthorities() {
+    public Set<String> getAuthorities() {
         return authorities;
     }
 
-    public void setAuthorities(Set<AuthorityType> authorities) {
+    public void setAuthorities(Set<String> authorities) {
         this.authorities = authorities;
     }
 }
