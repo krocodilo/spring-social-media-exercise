@@ -1,4 +1,4 @@
-package com.bring.social.models.jpa;
+package com.example.social.models.jpa;
 
 import jakarta.persistence.*;
 

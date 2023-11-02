@@ -1,4 +1,4 @@
-package com.bring.social.models;
+package com.example.social.models;
 
 import java.util.Arrays;
 import java.util.Optional;
@@ -14,7 +14,9 @@ public enum AuthType {
     ROLE_USER;
 
     public String removeRolePrefix() {
-        return this.name().substring( "ROLE_".length() );
+        return this.name().startsWith("ROLE_") ?
+                this.name().substring( "ROLE_".length() )
+                : this.name();
     }
 
     public static Optional<AuthType> getByName(String authority) {

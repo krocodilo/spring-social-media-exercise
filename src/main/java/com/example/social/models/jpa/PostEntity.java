@@ -1,6 +1,5 @@
-package com.bring.social.models.jpa;
+package com.example.social.models.jpa;
 
-import com.bring.social.models.jpa.UserEntity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;

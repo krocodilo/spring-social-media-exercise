@@ -1,6 +1,6 @@
-package com.bring.social.jpa;
+package com.example.social.jpa;
 
-import com.bring.social.models.jpa.UserEntity;
+import com.example.social.models.jpa.UserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.LocalDate;

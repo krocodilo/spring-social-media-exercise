@@ -1,6 +1,6 @@
-package com.bring.social.models.requests;
+package com.example.social.models.requests;
 
-import com.bring.social.models.jpa.UserEntity;
+import com.example.social.models.jpa.UserEntity;
 
 import java.util.Set;
 

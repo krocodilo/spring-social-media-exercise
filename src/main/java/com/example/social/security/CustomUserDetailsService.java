@@ -1,9 +1,9 @@
-package com.bring.social.security;
+package com.example.social.security;
 
-import com.bring.social.jpa.CredentialsRepository;
-import com.bring.social.jpa.UserRepository;
-import com.bring.social.models.jpa.UserCredentials;
-import com.bring.social.models.jpa.UserEntity;
+import com.example.social.jpa.CredentialsRepository;
+import com.example.social.jpa.UserRepository;
+import com.example.social.models.jpa.UserCredentials;
+import com.example.social.models.jpa.UserEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;

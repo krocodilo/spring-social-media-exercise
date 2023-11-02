@@ -1,15 +1,15 @@
-package com.bring.social.rest;
+package com.example.social.rest;
 
 
-import com.bring.social.exceptions.UserNotFoundException;
-import com.bring.social.jpa.CredentialsRepository;
-import com.bring.social.jpa.PostRepository;
-import com.bring.social.jpa.UserRepository;
-import com.bring.social.models.AuthType;
-import com.bring.social.models.jpa.PostEntity;
-import com.bring.social.models.jpa.UserCredentials;
-import com.bring.social.models.jpa.UserEntity;
-import com.bring.social.models.requests.NewUserRequest;
+import com.example.social.exceptions.UserNotFoundException;
+import com.example.social.jpa.CredentialsRepository;
+import com.example.social.jpa.PostRepository;
+import com.example.social.jpa.UserRepository;
+import com.example.social.models.AuthType;
+import com.example.social.models.jpa.PostEntity;
+import com.example.social.models.jpa.UserCredentials;
+import com.example.social.models.jpa.UserEntity;
+import com.example.social.models.requests.NewUserRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +37,10 @@ public class UserController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @GetMapping("/login")
+    public ResponseEntity<String> login(){
+        return ResponseEntity.ok().build();
+    }
 
     @GetMapping
     public List<UserEntity> getALlUsers() {

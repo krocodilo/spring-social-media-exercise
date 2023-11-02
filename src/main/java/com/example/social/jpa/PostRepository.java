@@ -1,6 +1,6 @@
-package com.bring.social.jpa;
+package com.example.social.jpa;
 
-import com.bring.social.models.jpa.PostEntity;
+import com.example.social.models.jpa.PostEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface PostRepository extends JpaRepository<PostEntity, Integer> {

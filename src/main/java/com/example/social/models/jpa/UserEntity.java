@@ -1,4 +1,4 @@
-package com.bring.social.models.jpa;
+package com.example.social.models.jpa;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
