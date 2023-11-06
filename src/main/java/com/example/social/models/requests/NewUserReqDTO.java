@@ -4,14 +4,14 @@ import com.example.social.models.jpa.UserEntity;
 
 import java.util.Set;
 
-public class NewUserRequest extends UserEntity {
+public class NewUserReqDTO extends UserEntity {
 
 //    @Size(min=16, message="Name must have at least 16 char")
     private String password;
 
-    private Set<String> authorities;   // user roles
+    private Set<String> authorities;   // user authorities and roles
 
-    public NewUserRequest() {
+    public NewUserReqDTO() {
     }
 
     public String getPassword() {

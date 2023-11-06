@@ -1,7 +1,5 @@
 package com.example.social.models.jpa;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Size;
@@ -15,6 +13,7 @@ public class UserEntity {
 
     public UserEntity(){}  //to be used by JPA
 
+//    @JsonIgnore
     @Id
     @GeneratedValue
     private Integer id;
@@ -23,23 +22,19 @@ public class UserEntity {
     @Column(unique = true)
     private String username;
 
-    @JsonProperty("birth_date")
+//    @JsonProperty("birth_date")
     @Past(message = "Birth date must be in past")
     private LocalDate birthDate;
 
+    //    @JsonIgnore // Because posts must not be part of the JSON request/response for the User bean
     // Opposite of what is in Post entity:
-    @JsonIgnore // Because posts must not be part of the JSON request/response for the User bean
     @OneToMany(mappedBy = "user")   //The field in Post that owns this relationship
     private List<PostEntity> posts;
 
-    @JsonIgnore
+//    @JsonIgnore
     @OneToOne(mappedBy = "user", fetch = FetchType.LAZY, optional = false,
         cascade = CascadeType.REMOVE)   //Only update creds table when user table is updated to remove (by removing it as well)
     private UserCredentials credentials;
-
-//    @JsonIgnore
-//    @OneToMany(mappedBy = "user")
-//    private Set<Integer> authorities;
 
     public UserEntity(Integer id, String username, LocalDate birthDate) {
         this.id = id;

@@ -19,7 +19,6 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.Arrays;
 import java.util.List;
 
 @Configuration  // during startup, Spring will excecute this class
@@ -55,11 +54,12 @@ public class SpringSecurityConfig {
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration cors = new CorsConfiguration();
-        cors.setAllowedOrigins( Arrays.asList("https://localhost:8080") );
-        cors.setAllowedMethods( Arrays.asList("*") );
+        cors.setAllowedOrigins( List.of("https://localhost:8080") );
+        cors.setAllowedMethods( List.of("*") );
         cors.setAllowCredentials(true);
+
         cors.setAllowedHeaders( List.of("*") );
-        cors.setExposedHeaders( Arrays.asList(SecurityConstants.JWT_HEADER) );
+        cors.setExposedHeaders( List.of(SecurityConstants.JWT_HEADER) );
         cors.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

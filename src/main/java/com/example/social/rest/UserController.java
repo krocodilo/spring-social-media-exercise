@@ -9,10 +9,10 @@ import com.example.social.models.AuthType;
 import com.example.social.models.jpa.PostEntity;
 import com.example.social.models.jpa.UserCredentials;
 import com.example.social.models.jpa.UserEntity;
-import com.example.social.models.requests.NewUserRequest;
+import com.example.social.models.mappers.UserMapper;
+import com.example.social.models.requests.NewUserReqDTO;
+import com.example.social.models.responseDTOs.UserRespDTO;
 import jakarta.validation.Valid;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -28,14 +28,22 @@ import java.util.Set;
 @RestController
 @RequestMapping("users")    // -> /users
 public class UserController {
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private PostRepository postRepository;
-    @Autowired
-    private CredentialsRepository credsRepository;
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    private final UserRepository userRepository;
+    private final PostRepository postRepository;
+    private final CredentialsRepository credsRepository;
+    private final PasswordEncoder passwordEncoder;
+
+    private final UserMapper userMapper;
+
+    public UserController(UserRepository userRepository, PostRepository postRepository,
+                          CredentialsRepository credsRepository, PasswordEncoder passwordEncoder) {
+        this.userRepository = userRepository;
+        this.postRepository = postRepository;
+        this.credsRepository = credsRepository;
+        this.passwordEncoder = passwordEncoder;
+
+        userMapper = UserMapper.MAPPER;
+    }
 
     @GetMapping("/login")
     public ResponseEntity<String> login(){
@@ -43,28 +51,29 @@ public class UserController {
     }
 
     @GetMapping
-    public List<UserEntity> getALlUsers() {
-        return userRepository.findAll();
+    public List<UserRespDTO> getALlUsers() {
+        return userRepository.findAll().stream()
+                .map( userMapper::toUserDTO ).toList();
     }
 
     @GetMapping("/{id}")
-    public UserEntity getOneUser(@PathVariable int id) {
+    public UserRespDTO getOneUser(@PathVariable int id) {
         Optional<UserEntity> usr = userRepository.findById(id);
         if(usr.isEmpty())
             throw new UserNotFoundException("User Not Found: " + id);
-        return usr.get();
+
+        return userMapper.toUserDTO( usr.get() );
     }
 
     @PostMapping
-    public ResponseEntity<String> createUser(@Valid @RequestBody NewUserRequest request){
+    public ResponseEntity<String> createUser(@Valid @RequestBody NewUserReqDTO request){
 
         if(userRepository.findByUsername(request.getUsername()) != null)
             return ResponseEntity.status(HttpStatus.CONFLICT).body("User already exists");
 
         // Save user to DB
-        UserEntity user = new UserEntity();
-        BeanUtils.copyProperties(request, user);
-        userRepository.save(user);
+        UserEntity user = userMapper.toUserEntity(request);
+        userRepository.save( user );
 
         // Calculate the password hash
         String passwordHash = passwordEncoder.encode( request.getPassword() );

@@ -4,7 +4,6 @@ import com.example.social.jpa.CredentialsRepository;
 import com.example.social.jpa.UserRepository;
 import com.example.social.models.jpa.UserCredentials;
 import com.example.social.models.jpa.UserEntity;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -21,10 +20,13 @@ public class CustomUserDetailsService implements UserDetailsService {
     // Spring Security automatically uses this method to get the details of a user. Those details
     // will then be used to compare the credentials received in a request.
 
-    @Autowired
-    UserRepository userRepository;
-    @Autowired
-    CredentialsRepository credsRepository;
+    private final UserRepository userRepository;
+    private final CredentialsRepository credsRepository;
+
+    public CustomUserDetailsService(UserRepository userRepository, CredentialsRepository credsRepository) {
+        this.userRepository = userRepository;
+        this.credsRepository = credsRepository;
+    }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
