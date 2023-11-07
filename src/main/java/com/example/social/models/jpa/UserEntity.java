@@ -1,8 +1,6 @@
 package com.example.social.models.jpa;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Past;
-import jakarta.validation.constraints.Size;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -18,12 +16,12 @@ public class UserEntity {
     @GeneratedValue
     private Integer id;
 
-    @Size(min=2, message="Name must have at least 2 char")
+//    @Size(min=2, message="Name must have at least 2 char")
     @Column(unique = true)
     private String username;
 
 //    @JsonProperty("birth_date")
-    @Past(message = "Birth date must be in past")
+//    @Past(message = "Birth date must be in past")
     private LocalDate birthDate;
 
     //    @JsonIgnore // Because posts must not be part of the JSON request/response for the User bean

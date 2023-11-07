@@ -10,7 +10,7 @@ import com.example.social.models.jpa.PostEntity;
 import com.example.social.models.jpa.UserCredentials;
 import com.example.social.models.jpa.UserEntity;
 import com.example.social.models.mappers.UserMapper;
-import com.example.social.models.requests.NewUserReqDTO;
+import com.example.social.models.requestDTOs.NewUserReqDTO;
 import com.example.social.models.responseDTOs.UserRespDTO;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -53,7 +53,7 @@ public class UserController {
     @GetMapping
     public List<UserRespDTO> getALlUsers() {
         return userRepository.findAll().stream()
-                .map( userMapper::toUserDTO ).toList();
+                .map( userMapper::toUserRespDTO).toList();
     }
 
     @GetMapping("/{id}")
@@ -62,13 +62,15 @@ public class UserController {
         if(usr.isEmpty())
             throw new UserNotFoundException("User Not Found: " + id);
 
-        return userMapper.toUserDTO( usr.get() );
+        return userMapper.toUserRespDTO( usr.get() );
     }
 
     @PostMapping
     public ResponseEntity<String> createUser(@Valid @RequestBody NewUserReqDTO request){
 
-        if(userRepository.findByUsername(request.getUsername()) != null)
+        // TODO: if request fails Spring Validation, 401 code is returned without explanation to the user. Must be improved
+
+        if(userRepository.findByUsername(request.username()) != null)
             return ResponseEntity.status(HttpStatus.CONFLICT).body("User already exists");
 
         // Save user to DB
@@ -76,11 +78,11 @@ public class UserController {
         userRepository.save( user );
 
         // Calculate the password hash
-        String passwordHash = passwordEncoder.encode( request.getPassword() );
+        String passwordHash = passwordEncoder.encode( request.password() );
 
         // Create a set of the requested authorities. In prod, users should not be able to become admins doing this
         Set<String> authorities = new HashSet<>(
-                request.getAuthorities().stream()
+                request.authorities().stream()
                         .filter( authName -> AuthType.getByName(authName).isPresent() )
                         .toList()
         );
